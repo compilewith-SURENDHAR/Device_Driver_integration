@@ -23,8 +23,8 @@ mkdir -p "${SPI_PATH}/external_driver/inc" || { echo "Failed to create inc direc
 # Move the driver files into the SDK
 if [ -d "$DRV_PATH" ]; then
     echo "Moving driver to SDK"
-    cp "${DRV_PATH}/src/${DEVICE}.c" "${SPI_PATH}/external_driver/src/" || { echo "Failed to copy ${DEVICE}.c"; exit 1; }
-    cp "${DRV_PATH}/inc/${DEVICE}.h" "${SPI_PATH}/external_driver/inc/" || { echo "Failed to copy ${DEVICE}.h"; exit 1; }
+    cp "${DRV_PATH}${DEVICE}.c" "${SPI_PATH}/external_driver/src/" || { echo "Failed to copy ${DEVICE}.c"; exit 1; }
+    cp "${DRV_PATH}${DEVICE}.h" "${SPI_PATH}/external_driver/inc/" || { echo "Failed to copy ${DEVICE}.h"; exit 1; }
     echo "Files moved successfully."
 else
     echo "Driver source folder does not exist at $DRV_PATH."
@@ -138,7 +138,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image dtbs || { echo
 # Package the output
 echo "Packaging the modified SDK..."
 cd "${HOME_PATH}"
-tar -czvf "${OUTPUT_PATH}/ti-processor-sdk-linux-adas-j721e-evm-10_01_00_04_output.tar.gz" "${SDK_PATH}"
+tar -czvf "${OUTPUT_PATH}/sdk_j721e_linux_atm02.tar.gz" "${SDK_PATH}"
  
 echo "Process completed successfully."
 exit 0
