@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Variables
-HOME_PATH="/home/surendhar/DDF_Device_Drivers/J721E_AT25M02"
+HOME_PATH="/opt/sdk"
 SDK_PATH="${HOME_PATH}/ti-processor-sdk-linux-adas-j721e-evm-10_01_00_04"
 SPI_PATH="${SDK_PATH}/board-support/ti-linux-kernel-6.6.44+git-ti/drivers/spi"
 DTS_PATH="${SDK_PATH}/board-support/ti-linux-kernel-6.6.44+git-ti/arch/arm64/boot/dts/ti"
 DRV_PATH="${HOME_PATH}"
-OUTPUT_PATH="${HOME_PATH}/output"
+OUTPUT_PATH="${HOME_PATH}"
 #---------------------------------------------------------------------------------------------------------------------------------------
 
 # Hardcoded inputs
@@ -121,7 +121,7 @@ fi
 
 # Configure the kernel
 echo "Configuring the kernel for J721E with AT25M02..."
-cd /home/surendhar/DDF_Device_Drivers/J721E_AT25M02/ti-processor-sdk-linux-adas-j721e-evm-10_01_00_04/board-support/ti-linux-kernel-6.6.44+git-ti
+cd "${SDK_PATH}/board-support/ti-linux-kernel-6.6.44+git-ti" || { echo "Failed to cd to kernel path"; exit 1; }
 cp arch/arm64/configs/defconfig .config
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig || { echo "First olddefconfig failed"; exit 1; }
 echo "Manually enabling CONFIG_SPI_AT25M02..."
@@ -138,7 +138,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image dtbs || { echo
 # Package the output
 echo "Packaging the modified SDK..."
 cd "${HOME_PATH}"
-tar -czvf "${OUTPUT_PATH}/ti-processor-sdk-linux-adas-j721e-evm-10_01_00_04_MODIFIED.tar.gz" "${SDK_PATH}"
+tar -czvf "${OUTPUT_PATH}/ti-processor-sdk-linux-adas-j721e-evm-10_01_00_04_output.tar.gz" "${SDK_PATH}"
  
 echo "Process completed successfully."
 exit 0
