@@ -73,7 +73,7 @@ fi
 
 # Update the Device Tree (k3-j721e-common-proc-board.dts)
 DTS_FILE="${DTS_PATH}/k3-j721e-common-proc-board.dts"
-f [ -f "$DTS_FILE" ]; then
+if [ -f "$DTS_FILE" ]; then
     echo "Updating Device Tree at $DTS_FILE for SPI1 pinmux and AT25M02"
     # Insert spi1_pins_default as the first entry inside &main_pmx0
     if ! grep -q "spi1_pins_default: spi1-pins-default" "$DTS_FILE"; then
