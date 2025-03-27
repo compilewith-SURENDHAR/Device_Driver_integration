@@ -73,23 +73,22 @@ fi
 
 # Update the Device Tree (k3-j721e-common-proc-board.dts)
 DTS_FILE="${DTS_PATH}/k3-j721e-common-proc-board.dts"
-if [ -f "$DTS_FILE" ]; then
-    echo "Updating Device Tree at $DTS_FILE for pinmux and SPI"
-    if ! grep -q "spi1_pins_default:" "$DTS_FILE"; then
-        cat << 'EOF' >> "$DTS_FILE"
-/* SPI1 pinmux for AT25M02 */
-&main_pmx0 {
-    spi1_pins_default: spi1-pins-default {
-        pinctrl-single,pins = <
-            J721E_IOPAD(0x1c0, PIN_INPUT, 0)  /* SPI1_CLK */
-            J721E_IOPAD(0x1c4, PIN_INPUT, 0)  /* SPI1_D0 (MISO) */
-            J721E_IOPAD(0x1c8, PIN_OUTPUT, 0) /* SPI1_D1 (MOSI) */
-            J721E_IOPAD(0x1cc, PIN_OUTPUT, 0) /* SPI1_CS0 */
-        >;
-    };
-};
-EOF
-        echo "Inserted spi1_pins_default into &main_pmx0."
+f [ -f "$DTS_FILE" ]; then
+    echo "Updating Device Tree at $DTS_FILE for SPI1 pinmux and AT25M02"
+    # Insert spi1_pins_default as the first entry inside &main_pmx0
+    if ! grep -q "spi1_pins_default: spi1-pins-default" "$DTS_FILE"; then
+        sed -i '/&main_pmx0 {/a \
+    spi1_pins_default: spi1-pins-default {\
+        pinctrl-single,pins = <\
+            J721E_IOPAD(0x1c0, PIN_INPUT, 0)  /* SPI1_CLK */\
+            J721E_IOPAD(0x1c4, PIN_INPUT, 0)  /* SPI1_D0 (MISO) */\
+            J721E_IOPAD(0x1c8, PIN_OUTPUT, 0) /* SPI1_D1 (MOSI) */\
+            J721E_IOPAD(0x1cc, PIN_OUTPUT, 0) /* SPI1_CS0 */\
+        >;\
+    };' "$DTS_FILE" || { echo "Failed to insert spi1_pins_default into &main_pmx0"; exit 1; }
+        echo "Inserted spi1_pins_default as first entry in &main_pmx0."
+    else
+        echo "spi1_pins_default already exists in Device Tree."
     fi
 
     if ! grep -q "&main_spi1" "$DTS_FILE"; then
