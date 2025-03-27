@@ -75,47 +75,42 @@ fi
 DTS_FILE="${DTS_PATH}/k3-j721e-common-proc-board.dts"
 if [ -f "$DTS_FILE" ]; then
     echo "Updating Device Tree at $DTS_FILE for pinmux and SPI"
-    # Insert spi1_pins_default inside &main_pmx0 if not already present
-    if ! grep -q "^[[:space:]]*spi1_pins_default:" "$DTS_FILE"; then
-        # Insert after the last pinmux node but before &main_pmx0's closing brace
-        sed -i '/&main_pmx0 {/,/^[[:space:]]*};/ {
-            /^[[:space:]]*[a-zA-Z0-9_-]*:.*{/,/^[[:space:]]*};/p
-            /^[[:space:]]*};/i \
-    spi1_pins_default: spi1-pins-default {\
-        pinctrl-single,pins = <\
-            J721E_IOPAD(0x1c0, PIN_INPUT, 0)  \/* SPI1_CLK - Placeholder, update from TRM *\/\
-            J721E_IOPAD(0x1c4, PIN_INPUT, 0)  \/* SPI1_D0 (MISO) - Placeholder *\/\
-            J721E_IOPAD(0x1c8, PIN_OUTPUT, 0) \/* SPI1_D1 (MOSI) - Placeholder *\/\
-            J721E_IOPAD(0x1cc, PIN_OUTPUT, 0) \/* SPI1_CS0 - Placeholder *\/\
-        >;\
+    if ! grep -q "spi1_pins_default:" "$DTS_FILE"; then
+        cat << 'EOF' >> "$DTS_FILE"
+/* SPI1 pinmux for AT25M02 */
+&main_pmx0 {
+    spi1_pins_default: spi1-pins-default {
+        pinctrl-single,pins = <
+            J721E_IOPAD(0x1c0, PIN_INPUT, 0)  /* SPI1_CLK */
+            J721E_IOPAD(0x1c4, PIN_INPUT, 0)  /* SPI1_D0 (MISO) */
+            J721E_IOPAD(0x1c8, PIN_OUTPUT, 0) /* SPI1_D1 (MOSI) */
+            J721E_IOPAD(0x1cc, PIN_OUTPUT, 0) /* SPI1_CS0 */
+        >;
     };
-        }' "$DTS_FILE" || { echo "Failed to insert pinmux into &main_pmx0"; exit 1; }
+};
+EOF
         echo "Inserted spi1_pins_default into &main_pmx0."
-    else
-        echo "spi1_pins_default already exists in Device Tree."
     fi
-    # Append &main_spi1 after dp_pwr_3v3 if not already present
-    if ! grep -q "^[[:space:]]*&main_spi1" "$DTS_FILE"; then
-        sed -i '/^[[:space:]]*dp_pwr_3v3: regulator-dp-pwr {/,/^[[:space:]]*};/a \
-\
-&main_spi1 {\
-    status = "okay";\
-    pinctrl-names = "default";\
-    pinctrl-0 = <&spi1_pins_default>;\
-    at25m02@0 {\
-        compatible = "at25m02";\
-        reg = <0>;\
-        spi-max-frequency = <5000000>;\
-    };\
-};' "$DTS_FILE" || { echo "Failed to append &main_spi1"; exit 1; }
-        echo "Appended &main_spi1 node after dp_pwr_3v3."
-    else
-        echo "&main_spi1 already exists in Device Tree."
+
+    if ! grep -q "&main_spi1" "$DTS_FILE"; then
+        cat << 'EOF' >> "$DTS_FILE"
+/* SPI1 node for AT25M02 */
+&main_spi1 {
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&spi1_pins_default>;
+    at25m02@0 {
+        compatible = "at25m02";
+        reg = <0>;
+        spi-max-frequency = <5000000>;
+    };
+};
+EOF
+        echo "Appended &main_spi1 node."
     fi
-    echo "Device Tree updated with SPI1 pinmux and AT25M02 node."
 else
     echo "Device Tree file not found at $DTS_FILE."
-    exit 1 
+    exit 1
 fi
 #---------------------------------------------------------------------------------------------------------------------------------------
 
