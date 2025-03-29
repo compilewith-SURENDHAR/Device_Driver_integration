@@ -132,7 +132,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image dtbs || { echo
 # Package the output
 echo "Packaging the modified SDK..."
 cd "${HOME_PATH}"
-tar -czvf "${OUTPUT_PATH}/sdk_j721e_linux_atm02.tar.gz" "${SDK_PATH}"
+tar -czvf "${OUTPUT_PATH}/sdk_j721e_linux_at25m02.tar.gz" "${SDK_PATH}"
  
 echo "Process completed successfully."
 exit 0
